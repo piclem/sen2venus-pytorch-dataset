@@ -1,9 +1,10 @@
 import os
 import torch
 from torch.utils.data import Dataset
-import torchvision
+from torchvision.datasets.utils import download_and_extract_archive, download_url
 import geopandas as gpd
 import numpy as np
+import py7zr
 import xarray as xr
 import rioxarray as rxr
 from pathlib import Path
@@ -28,8 +29,11 @@ class Sen2Venus(Dataset):
         self.load_geometry = load_geometry
         self.already_downloaded_urls = []
         self.urls = [('https://zenodo.org/record/6514159/files/ALSACE.7z?download=1', 'ecbf57fc83a8c8ca47ab421642bbef57'), ('https://zenodo.org/record/6514159/files/ANJI.7z?download=1', '2b6521e2fd43fc220557d1a171f94c06'), ('https://zenodo.org/record/6514159/files/ARM.7z?download=1', '9c264cd01640707f483f78a88c1a40c8'), ('https://zenodo.org/record/6514159/files/ATTO.7z?download=1', 'c6d7905816f8c807e5a87f4a2d09a4ae'), ('https://zenodo.org/record/6514159/files/BAMBENW2.7z?download=1', 'f804161f30c295dab1172e904ecb38be'), ('https://zenodo.org/record/6514159/files/BENGA.7z?download=1', 'a3bdc8fd5ac049b2d07b308fc1f0706a'), ('https://zenodo.org/record/6514159/files/ES-IC3XG.7z?download=1', 'e7a19cd51f048a006688f6b2ea795d55'), ('https://zenodo.org/record/6514159/files/ES-LTERA.7z?download=1', '226cd7c10689f9aad92c760d9c1899fe'), ('https://zenodo.org/record/6514159/files/ESGISB-1.7z?download=1', 'ab1c0e9a70c566d6fe8b94ba421a15d6'), ('https://zenodo.org/record/6514159/files/ESGISB-2.7z?download=1', '20196e6e963170e641fc805330077434'), ('https://zenodo.org/record/6514159/files/ESGISB-3.7z?download=1', 'ac42ab2ddb89975b55395ace90ecc0a6'), ('https://zenodo.org/record/6514159/files/ESTUAMAR.7z?download=1', '2b540369499c7b9882f7e195699e9438'), ('https://zenodo.org/record/6514159/files/FGMANAUS.7z?download=1', '06d422d9f4ba0c2ed1087c2a7f0339c5'), ('https://zenodo.org/record/6514159/files/FR-BIL.7z?download=1', 'c4305e091b61de5583842f71b4122ed3'), ('https://zenodo.org/record/6514159/files/FR-LAM.7z?download=1', '1bceb23259d7f101ee0e1df141b5e550'), ('https://zenodo.org/record/6514159/files/FR-LQ1.7z?download=1', '535489d0d3bc23e8e7646a20b99575e6'), ('https://zenodo.org/record/6514159/files/JAM2018.7z?download=1', '2e2a6de2b5842ce86d074ebd8c68354b'), ('https://zenodo.org/record/6514159/files/K34-AMAZ.7z?download=1', '7abf9ef3f89bd30b905c0029169b88d1'), ('https://zenodo.org/record/6514159/files/KUDALIAR.7z?download=1', '1427c8a4bc1e238c5c63e434fd6d31c6'), ('https://zenodo.org/record/6514159/files/LERIDA-1.7z?download=1', 'd507dcbc1b92676410df9e4f650ea23b'), ('https://zenodo.org/record/6514159/files/LICENCE?download=1', '373f2ea88a57d51c5f54778c36503027'), ('https://zenodo.org/record/6514159/files/MAD-AMBO.7z?download=1', '49e43cd47ecdc5360c83e448eaf73fbb'), ('https://zenodo.org/record/6514159/files/MD5SUMS?download=1', 'a21a655812d6cfd309d1e76c95463916'), ('https://zenodo.org/record/6514159/files/NARYN.7z?download=1', '56474220d0014e53aa0c96ea93c03bc9'), ('https://zenodo.org/record/6514159/files/SO1.7z?download=1', '62b5ce44dc641639079c15227cdbd794'), ('https://zenodo.org/record/6514159/files/SO2.7z?download=1', '59afd969b950f90df0f8ce8b1dbccd62'), ('https://zenodo.org/record/6514159/files/SUDOUE-2.7z?download=1', '5aed36a3d5e9746e5f5c438d10fae413'), ('https://zenodo.org/record/6514159/files/SUDOUE-3.7z?download=1', '0eeb556caaae171b8fbd0696f4757308'), ('https://zenodo.org/record/6514159/files/SUDOUE-4.7z?download=1', 'aac762b62ac240720d34d5bb3fc4a906'), ('https://zenodo.org/record/6514159/files/SUDOUE-5.7z?download=1', '69042546af7bd25a0398b04c2ce60057'), ('https://zenodo.org/record/6514159/files/SUDOUE-6.7z?download=1', 'ca143d2a2a56db30ab82c33420433e01')]
-    
+        self.update()
 
+    def update(self):
+        self.total_samples = 0
+        self.samples = []
         for folder_name in os.listdir(self.root):
             folder_path = os.path.join(self.root, folder_name)
             if os.path.isdir(folder_path):
@@ -87,7 +91,7 @@ class Sen2Venus(Dataset):
                 if len(data) > 2:
                     filename = data[2]
                 else:
-                    filename = os.path.basename(url)
+                    filename = os.path.basename(url)[:-11]
             if site_name is not None and site_name not in url:
                 continue
             if (self.root, url) in self.already_downloaded_urls:
@@ -99,6 +103,7 @@ class Sen2Venus(Dataset):
                     print('Extracting 7zip archive')
                     z.extractall()
             self.already_downloaded_urls.append((self.root, url))
+        self.update()
 
     def __len__(self):
         return self.total_samples
