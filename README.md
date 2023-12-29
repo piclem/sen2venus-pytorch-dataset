@@ -1,5 +1,5 @@
 # sen2venus
-Unofficial dataloader for the [Sen2Venµs dataset](https://zenodo.org/record/6514159).
+Unofficial dataloader for the [Sen2Venµs dataset](https://zenodo.org/record/6514159), baked at [CESBIO](https://www.cesbio.cnrs.fr/) by [Julien Michel, Juan VInasco-Salinas, Jordi Inglada and Olivier Hagolle](https://doi.org/10.3390/data7070096).
 
 ## Overview
 
