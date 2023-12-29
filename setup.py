@@ -30,4 +30,7 @@ setup(name='sen2venus',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
       zip_safe=False,
       include_package_data=True,
+      install_requires=[
+        'torch', 'torchvision', 'rioxarray', 'py7zr', 'geopandas',
+      ]
       )

@@ -4,11 +4,9 @@ from torch.utils.data import Dataset
 from torchvision.datasets.utils import download_and_extract_archive, download_url
 import geopandas as gpd
 import numpy as np
-import py7zr
 import xarray as xr
 import rioxarray as rxr
 from pathlib import Path
-import logging
 import json
 
 class Sen2Venus(Dataset):
