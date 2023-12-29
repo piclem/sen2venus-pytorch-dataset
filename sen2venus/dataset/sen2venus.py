@@ -5,9 +5,14 @@ import torchvision
 import geopandas as gpd
 import numpy as np
 import xarray as xr
+import rioxarray as rxr
+from pathlib import Path
+import logging
+import json
 
 class Sen2Venus(Dataset):
     def __init__(self, root, load_geometry=False, subset='rgbnir', **kwargs):
+        
         if subset=='rgbnir':
             self.bands_pattern = 'b2b3b4b8'
             self.input_gsd_pattern = '10m'
@@ -66,23 +71,33 @@ class Sen2Venus(Dataset):
         return tensor.size(0)
         
     def download(self, site_name=None):
+        import py7zr
         # We just always download everything: the X4/X8 datasets are not big anyway
         for data in self.urls:
             filename = None
             md5sum = None
             if isinstance(data, str):
                 url = data
+                if not filename:
+                    filename = os.path.basename(url)
             else:
                 url = data[0]
                 if len(data) > 1:
                     md5sum = data[1]
                 if len(data) > 2:
                     filename = data[2]
+                else:
+                    filename = os.path.basename(url)
             if site_name is not None and site_name not in url:
                 continue
             if (self.root, url) in self.already_downloaded_urls:
                 continue
-            torchvision.datasets.utils.download_and_extract_archive(url, self.root, filename=filename, md5=md5sum)
+            # torchvision.datasets.utils.download_and_extract_archive(url, self.root, filename=filename, md5=md5sum)
+            torchvision.datasets.utils.download_url(url, self.root, filename=filename, md5=md5sum)
+            with py7zr.SevenZipFile(Path(self.root) / filename, mode='r') as z:
+                if not (Path(self.root) / filename).with_suffix('').exists():
+                    print('Extracting 7zip archive')
+                    z.extractall()
             self.already_downloaded_urls.append((self.root, url))
 
     def __len__(self):
@@ -95,27 +110,28 @@ class Sen2Venus(Dataset):
         
         if self.load_geometry:
             geometry = gpd.read_file(self.find_matching_gpkg(input_file), rows=slice(batch_pos, batch_pos+1))
-            return input_tensor, target_tensor, geometry.to_json()
+            return input_tensor, target_tensor, (geometry.to_json(), geometry.crs)
         return target_tensor, input_tensor
     
     def getitem_xarray(self, idx):
         assert self.load_geometry, "Cannot use `getitem_xarray()` if `load_geometry` is False, use `load_geometry = True` when instantiating the dataset."
         inputs, targets, geometry = self.__getitem__(idx)
-        gdf = gpd.read_file(geometry[0])
+        gdf = gpd.GeoDataFrame.from_features(json.loads(geometry[0]), crs=geometry[1])
         
         minx,miny,maxx,maxy = gdf.total_bounds
         # inputs
         gsd = (maxx-minx) / (inputs.shape[-1])
         xs = np.arange(minx, maxx, gsd)+gsd/2
         ys = np.arange(maxy, miny, -gsd)-gsd/2
-        da = xr.DataArray(inputs[0], dims=['band', 'y', 'x'], coords={'band': ['b2','b3','b4','b8'], 'y':ys, 'x':xs })
+        da_input = xr.DataArray(inputs, dims=['band', 'y', 'x'], coords={'band': ['b2','b3','b4','b8'], 'y':ys, 'x':xs })
+        da_input = da_input.rio.write_crs(gdf.crs)
+
         # targets
         gsd = (maxx-minx) / (targets.shape[-1])
         xs = np.arange(minx, maxx, gsd)+gsd/2
         ys = np.arange(maxy, miny, -gsd)-gsd/2
-        da = xr.DataArray(targets[0], dims=['band', 'y', 'x'], coords={'band': ['b2','b3','b4','b8'], 'y':ys, 'x':xs })
-        da = da.rio.write_crs(gdf.crs)
-        da.rio.to_raster('target_venus.tif')
-        
+        da_target = xr.DataArray(targets, dims=['band', 'y', 'x'], coords={'band': ['b2','b3','b4','b8'], 'y':ys, 'x':xs })
+        da_target = da_target.rio.write_crs(gdf.crs)
 
+        return da_input, da_target
 
