@@ -1,13 +1,13 @@
 import os
 import torch
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
 import torchvision
 import geopandas as gpd
-import json
 import numpy as np
+import xarray as xr
 
 class Sen2Venus(Dataset):
-    def __init__(self, root_folder, load_geometry=False, subset='rgbnir'):
+    def __init__(self, root, load_geometry=False, subset='rgbnir', **kwargs):
         if subset=='rgbnir':
             self.bands_pattern = 'b2b3b4b8'
             self.input_gsd_pattern = '10m'
@@ -16,8 +16,9 @@ class Sen2Venus(Dataset):
             self.input_gsd_pattern = '20m'
         else:
             raise NotImplementedError(f'Subset "{subset}" not implemented')
+        self.SCALE = 10000.0
         self.samples = []
-        self.root = root_folder
+        self.root = root
         self.total_samples = 0
         self.load_geometry = load_geometry
         self.already_downloaded_urls = []
@@ -89,28 +90,17 @@ class Sen2Venus(Dataset):
 
     def __getitem__(self, idx):
         input_file, target_file, batch_pos = self.samples[idx]
-        input_tensor = torch.load(input_file)[batch_pos]
-        target_tensor = torch.load(target_file)[batch_pos]
+        input_tensor = torch.load(input_file)[batch_pos]/self.SCALE
+        target_tensor = torch.load(target_file)[batch_pos]/self.SCALE
         
         if self.load_geometry:
             geometry = gpd.read_file(self.find_matching_gpkg(input_file), rows=slice(batch_pos, batch_pos+1))
             return input_tensor, target_tensor, geometry.to_json()
-        return input_tensor, target_tensor
-
-
-
-if __name__ == '__main__':
-    root_folder = "/home/clement/dev/torchSR/data/Sen2Venus/"
-    dataset = Sen2Venus(root_folder, load_geometry=True, subset='rededge')
-    dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
-
-    import rioxarray as rxr
-    import xarray as xr
-
-    for inputs, targets, geometry in dataloader:
-        print("input shape:",inputs.shape)
-        print("target shape:", targets.shape)
-        print(geometry)
+        return target_tensor, input_tensor
+    
+    def getitem_xarray(self, idx):
+        assert self.load_geometry, "Cannot use `getitem_xarray()` if `load_geometry` is False, use `load_geometry = True` when instantiating the dataset."
+        inputs, targets, geometry = self.__getitem__(idx)
         gdf = gpd.read_file(geometry[0])
         
         minx,miny,maxx,maxy = gdf.total_bounds
@@ -119,15 +109,13 @@ if __name__ == '__main__':
         xs = np.arange(minx, maxx, gsd)+gsd/2
         ys = np.arange(maxy, miny, -gsd)-gsd/2
         da = xr.DataArray(inputs[0], dims=['band', 'y', 'x'], coords={'band': ['b2','b3','b4','b8'], 'y':ys, 'x':xs })
-        da = da.rio.write_crs(gdf.crs)
-        da.rio.to_raster('input_sentinel2.tif')
-        
-        # inputs
+        # targets
         gsd = (maxx-minx) / (targets.shape[-1])
         xs = np.arange(minx, maxx, gsd)+gsd/2
         ys = np.arange(maxy, miny, -gsd)-gsd/2
         da = xr.DataArray(targets[0], dims=['band', 'y', 'x'], coords={'band': ['b2','b3','b4','b8'], 'y':ys, 'x':xs })
         da = da.rio.write_crs(gdf.crs)
         da.rio.to_raster('target_venus.tif')
-        break
+        
+
 
