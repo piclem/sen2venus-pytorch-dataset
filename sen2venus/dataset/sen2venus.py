@@ -1,7 +1,7 @@
 import os
 import torch
 from torch.utils.data import Dataset
-from torchvision.datasets.utils import download_and_extract_archive, download_url
+from torchvision.datasets.utils import download_url
 import geopandas as gpd
 import numpy as np
 import xarray as xr
@@ -95,7 +95,7 @@ class Sen2Venus(Dataset):
             if (self.root, url) in self.already_downloaded_urls:
                 continue
             # torchvision.datasets.utils.download_and_extract_archive(url, self.root, filename=filename, md5=md5sum)
-            torchvision.datasets.utils.download_url(url, self.root, filename=filename, md5=md5sum)
+            download_url(url, self.root, filename=filename, md5=md5sum)
             with py7zr.SevenZipFile(Path(self.root) / filename, mode='r') as z:
                 if not (Path(self.root) / filename).with_suffix('').exists():
                     print('Extracting 7zip archive')
