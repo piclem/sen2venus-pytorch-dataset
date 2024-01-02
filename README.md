@@ -32,14 +32,19 @@ plt.show()
 
 - [ ] (wip) better integration of download within class instantiation - currently needs to be reinstantiated
 - [ ] (wip) parallel downloads / multiple regions download
+- [ ] publish to pypi
 
 ## Installation
 
 You can install the package using `pip`:
 
 ```bash
-pip install sen2venus 
+git clone https://github.com/piclem/sen2venus.git
+cd sen2venus/
+pip install .
 ```
+
+(pypi publication to come later)
 
 ## Documentation (WIP)
 
