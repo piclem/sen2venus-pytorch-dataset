@@ -34,6 +34,7 @@ plt.show()
 - [x] multiple regions download
 - [ ] pypi publishing
 - [ ] parallel downloads
+- [ ] integration with [sr-pytorch-lightning](https://github.com/george-gca/sr-pytorch-lightning/tree/main)
 
 ## Installation
 

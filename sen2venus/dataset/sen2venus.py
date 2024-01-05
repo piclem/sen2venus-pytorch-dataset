@@ -176,7 +176,7 @@ class Sen2VenusSite(Dataset):
         if self.load_geometry:
             geometry = gpd.read_file(self.find_matching_gpkg(input_files[0]), rows=slice(batch_pos, batch_pos+1))
             return input_tensor, target_tensor, (geometry.to_json(), geometry.crs)
-        return target_tensor, input_tensor
+        return input_tensor, target_tensor
     
     def getitem_xarray(self, idx):
         assert self.load_geometry, "Cannot use `getitem_xarray()` if `load_geometry` is False, use `load_geometry = True` when instantiating the dataset."
@@ -212,6 +212,7 @@ class Sen2VenusSite(Dataset):
 class Sen2Venus(ConcatDataset):
     def __init__(self, root, site_names=[], load_geometry=False, subset='rgbnir', ):
         # create Sen2VenusSite list
+        self.subset = subset
         self.datasets = []
         for site_name in site_names:
             self.datasets.append(Sen2VenusSite(root, site_name, load_geometry=load_geometry, subset=subset))

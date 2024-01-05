@@ -83,17 +83,15 @@ class SuperResolutionModel(pl.LightningModule):
         return optimizer
 
 # Fonction de chargement des données (pour l'exemple, nous utilisons CIFAR-10)
-def load_data(batch_size=1, num_workers=1):
-    train_dataset = Sen2Venus('./')
-    # train_dataset.download('FGMANAUS')
-    train_dataset.download('SUDOUE-4')
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+def load_data(batch_size=1, num_workers=1, subset='all'):
+    train_dataset = Sen2Venus('./', site_names=['SUDOUE-4'], subset=subset)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, pin_memory=True, shuffle=True, num_workers=num_workers)
     print("Train dataset ready")
     return train_loader
 
-def main(batch_size=1, num_workers=1, max_epochs=100):
-    model = SuperResolutionModel()
-    data_loader = load_data(batch_size=batch_size, num_workers=num_workers)
+def main(batch_size=1, num_workers=1, max_epochs=100, subset='all'):
+    model = SuperResolutionModel(in_channels = 8 if subset == 'all' else 4)
+    data_loader = load_data(batch_size=batch_size, num_workers=num_workers, subset=subset)
     logger = TensorBoardLogger('tb_logs', name="Sen2Venus SR Lightning")
     trainer = pl.Trainer(accelerator='cuda' if torch.cuda.is_available() else 'cpu', max_epochs=max_epochs, logger=logger)
     trainer.fit(model, data_loader)
