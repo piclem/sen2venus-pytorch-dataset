@@ -9,7 +9,6 @@ This package provides a simple way to download and use the [Sen2Venµs dataset](
 from sen2venus import Sen2VenusSite
 import matplotlib.pyplot as plt
 
-Sen2Venus('./').download('SUDOUE-4')
 dataset = Sen2VenusSite(root='./', site_name='SUDOUE-4', load_geometry=True, subset='all')
 input, target = dataset.getitem_xarray(idx)
 input.plot.imshow(col='band')
