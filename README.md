@@ -6,11 +6,11 @@ Unofficial dataloader for the [Sen2Venµs dataset](https://zenodo.org/record/651
 This package provides a simple way to download and use the [Sen2Venµs dataset](https://zenodo.org/record/6514159) within the pytorch and Xarray ecosystems.
 
 ```python
-from sen2venus import Sen2Venus
+from sen2venus import Sen2VenusSite
 import matplotlib.pyplot as plt
 
 Sen2Venus('./').download('SUDOUE-4')
-dataset = Sen2Venus('./', load_geometry=True, subset='rededge')
+dataset = Sen2VenusSite(root='./', site_name='SUDOUE-4', load_geometry=True, subset='all')
 input, target = dataset.getitem_xarray(idx)
 input.plot.imshow(col='band')
 target.plot.imshow(col='band')
@@ -22,17 +22,18 @@ plt.show()
 
 - [x] **Automatic download from zenodo**: The Zenodo URLs and hashes are included. From a region name ([see the list](https://zenodo.org/record/6514159)), the corresponding subset is downloaded and decompressed. 
 
-- [x] **x2 or x4 dataset loading**: you can pick the `rgbnir` or the `rededge` subset to load the x2 or the x4 low and high resolution patches.
+- [x] **x2, x4 or multi-resolution dataset loading**: you can pick the `rgbnir` or the `rededge` subset to load the x2 or the x4 low (Sentinel-2) and high (Venus) resolution patches, or specify `all` to concatenate Sentinel-2 multi-resolution bands, as in [this paper](https://hal.science/hal-04218629).
 
 - [x] **inspired from existing frameworks**: the Sen2Venus class is inspired from [the torchsr dataset definition style](https://github.com/Coloquinte/torchSR/tree/main/torchsr/datasets) and the torchvision download utility are used.
 
 - [x] **automatically retrieve geospatial information**: includes method to convert the dataset samples to Xarray `DataArray`s
 
-## TODO (WIP)
+## TODO / WIP
 
-- [ ] (wip) better integration of download within class instantiation - currently needs to be reinstantiated
-- [ ] (wip) parallel downloads / multiple regions download
-- [ ] publish to pypi
+- [x] better integration of download within class instantiation - currently needs to be reinstantiated
+- [x] multiple regions download
+- [ ] pypi publishing
+- [ ] parallel downloads
 
 ## Installation
 
@@ -40,8 +41,8 @@ You can install the package using `pip`:
 
 ```bash
 git clone https://github.com/piclem/sen2venus.git
-cd sen2venus/
-pip install .
+cd sen2venus
+pip install . 
 ```
 
 (pypi publication to come later)
