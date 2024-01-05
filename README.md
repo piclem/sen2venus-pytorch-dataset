@@ -10,7 +10,7 @@ from sen2venus import Sen2VenusSite
 import matplotlib.pyplot as plt
 
 dataset = Sen2VenusSite(root='./', site_name='SUDOUE-4', load_geometry=True, subset='all')
-input, target = dataset.getitem_xarray(idx)
+input, target = dataset.getitem_xarray(0)
 input.plot.imshow(col='band')
 target.plot.imshow(col='band')
 plt.show()
