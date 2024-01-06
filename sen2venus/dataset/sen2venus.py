@@ -30,7 +30,7 @@ class Sen2VenusSubsetSuffixes():
     venus_rededge = '_05m_b4b5b6b8a.pt'
 
 class Sen2VenusSite(Dataset):
-    def __init__(self, root, site_name, load_geometry=False, subset='all', force_download=False):
+    def __init__(self, root, site_name, load_geometry=False, subset='all', force_download=False, return_type='tuple'):
         """Class for single Site Dataset
 
         Args:
@@ -176,7 +176,12 @@ class Sen2VenusSite(Dataset):
         if self.load_geometry:
             geometry = gpd.read_file(self.find_matching_gpkg(input_files[0]), rows=slice(batch_pos, batch_pos+1))
             return input_tensor, target_tensor, (geometry.to_json(), geometry.crs)
-        return input_tensor, target_tensor
+        if self.return_type == 'tuple':
+            return input_tensor, target_tensor
+        elif self.return_type == 'dict':
+            return {'lr': input_tensor, 'hr': target_tensor}
+        else:
+            raise NotImplementedError(f'Return type "{self.return_type}" not implemented')
     
     def getitem_xarray(self, idx):
         assert self.load_geometry, "Cannot use `getitem_xarray()` if `load_geometry` is False, use `load_geometry = True` when instantiating the dataset."
