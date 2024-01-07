@@ -1,0 +1,4 @@
+[submodule "examples/sr-pytorch-lightning"]
+	path = examples/sr-pytorch-lightning
+	url = https://github.com/piclem/sr-pytorch-lightning.git
+	branch = develop/sen2venus_compatibility
