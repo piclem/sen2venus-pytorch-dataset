@@ -85,17 +85,6 @@ class Sen2VenusSite(Dataset):
                 K.augmentation.RandomVerticalFlip(p=0.5),
                 K.augmentation.RandomHorizontalFlip(p=0.5),
                 same_on_batch=False)
-
-            # import albumentations as A
-            # self.augmentations = A.Compose([
-            #     A.HorizontalFlip(p=0.5),
-            #     A.VerticalFlip(p=0.5),
-            #     A.RandomRotate90(p=0.5),
-            #     # Add more augmentations as needed
-            # ], additional_targets={
-            #     'lr': 'image',
-            #     'hr': 'image'}
-            # )
         self.re_upsampling_mode = re_upsampling_mode
         
         self.download(force_download)
@@ -218,7 +207,6 @@ class Sen2VenusSite(Dataset):
         # augmentations
         if self.augment:
             with torch.no_grad():
-                # self.augmentations(lr=input_tensor, hr=target_tensor)
                 input_tensor = self.augmentations(input_tensor)[0]
                 target_tensor = self.augmentations(target_tensor, params=self.augmentations._params)[0]
         
