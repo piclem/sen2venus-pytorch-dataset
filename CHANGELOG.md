@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - repo renamed to sen2venus-pytorch-dataset after discussion with dataset authors
 - removal of non-dataset URL due to bad copy-pasting in list of datasets URLs
-- 
+ 
 ## [0.0.2] - 2024-01-05
 
 ### Added
