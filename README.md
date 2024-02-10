@@ -1,4 +1,4 @@
-# sen2venus
+# sen2venus-pytorch-dataset
 Unofficial dataloader for the [Sen2Venµs dataset](https://zenodo.org/record/6514159), baked at [CESBIO](https://www.cesbio.cnrs.fr/) by [Julien Michel, Juan Vinasco-Salinas, Jordi Inglada and Olivier Hagolle](https://doi.org/10.3390/data7070096).
 
 ## Overview
@@ -27,20 +27,22 @@ plt.show()
 
 - [x] **automatically retrieve geospatial information**: includes method to convert the dataset samples to Xarray `DataArray`s
 
+- [x] **compatible with [sr-pytorch-lightning](https://github.com/george-gca/sr-pytorch-lightning/tree/main)**: you can train your own SR model using a [fork of sr-pytorch-lightning](https://github.com/piclem/sr-pytorch-lightning).
+
 ## TODO / WIP
 
 - [x] better integration of download within class instantiation - currently needs to be reinstantiated
 - [x] multiple regions download
 - [ ] pypi publishing
 - [ ] parallel downloads
-- [ ] integration with [sr-pytorch-lightning](https://github.com/george-gca/sr-pytorch-lightning/tree/main)
+- [x] integration with [sr-pytorch-lightning](https://github.com/george-gca/sr-pytorch-lightning/tree/main)
 
 ## Installation
 
 You can install the package using `pip`:
 
 ```bash
-git clone https://github.com/piclem/sen2venus.git
+git clone https://github.com/piclem/sen2venus-pytorch-dataset.git
 cd sen2venus
 pip install . 
 ```

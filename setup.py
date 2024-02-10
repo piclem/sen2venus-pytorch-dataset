@@ -19,18 +19,18 @@ def get_version():
 logging.basicConfig(stream=sys.stderr, level=logging.INFO)
 log = logging.getLogger()
 
-setup(name='sen2venus',
+setup(name='sen2venus-torch-dataset',
       version=get_version(),
-      description="",
+      description="Unofficial pytorch dataloader for the Sen2Venµs Super-Resolution dataset.",
       classifiers=[],
-      author=u"piclem",
+      author=u"Clément Peyrard",
       author_email='clement.peyrard.phd@gmail.com',
-      url='https://github.com/piclem/pysen2venus',
+      url='https://github.com/piclem/sen2venus-torch-dataset',
       license='',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
       zip_safe=False,
       include_package_data=True,
       install_requires=[
-        'torch', 'torchvision', 'rioxarray', 'py7zr', 'geopandas',
+        'torch', 'torchvision', 'rioxarray', 'py7zr', 'geopandas', 'fire', 'py7zr'
       ]
       )
