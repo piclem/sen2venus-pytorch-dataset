@@ -33,7 +33,7 @@ plt.show()
 
 - [x] better integration of download within class instantiation - currently needs to be reinstantiated
 - [x] multiple regions download
-- [ ] pypi publishing
+- [x] pypi publishing
 - [ ] parallel downloads
 - [x] integration with [sr-pytorch-lightning](https://github.com/george-gca/sr-pytorch-lightning/tree/main)
 
