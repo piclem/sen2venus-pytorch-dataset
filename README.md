@@ -4,7 +4,9 @@ Unofficial dataloader for the [Sen2Venµs dataset](https://zenodo.org/record/651
 ## 🔍 Overview
 Install with: 
 
-```pip install sen2venus-pytorch-dataset```
+```bash
+pip install sen2venus-pytorch-dataset
+```
 
 This package provides a simple way to download and use the [Sen2Venµs dataset](https://zenodo.org/record/6514159) within the pytorch and Xarray ecosystems.
 
