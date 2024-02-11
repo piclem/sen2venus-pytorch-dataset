@@ -1,7 +1,7 @@
 # sen2venus-pytorch-dataset
 Unofficial dataloader for the [Sen2Venµs dataset](https://zenodo.org/record/6514159), baked at [CESBIO](https://www.cesbio.cnrs.fr/) by [Julien Michel, Juan Vinasco-Salinas, Jordi Inglada and Olivier Hagolle](https://doi.org/10.3390/data7070096).
 
-## Overview
+## 🔍 Overview
 Install with: `pip install sen2venus-pytorch-dataset`
 
 This package provides a simple way to download and use the [Sen2Venµs dataset](https://zenodo.org/record/6514159) within the pytorch and Xarray ecosystems.
@@ -19,7 +19,7 @@ plt.show()
 ```
 ![Matching Sentinel 2 and Venus samples](examples/samples_sentinel_venus.png)
 
-## Features
+## ✅ Features
 
 - [x] **Automatic download from zenodo**: The Zenodo URLs and hashes are included. From a region name ([see the list](https://zenodo.org/record/6514159)), the corresponding subset is downloaded and decompressed. 
 
@@ -31,7 +31,7 @@ plt.show()
 
 - [x] **compatible with [sr-pytorch-lightning](https://github.com/george-gca/sr-pytorch-lightning/tree/main)**: you can train your own SR model using a [fork of sr-pytorch-lightning](https://github.com/piclem/sr-pytorch-lightning).
 
-## TODO / WIP
+## 📋 TODO / WIP
 
 - [x] better integration of download within class instantiation - currently needs to be reinstantiated
 - [x] multiple regions download
@@ -39,7 +39,7 @@ plt.show()
 - [ ] parallel downloads
 - [x] integration with [sr-pytorch-lightning](https://github.com/george-gca/sr-pytorch-lightning/tree/main)
 
-## Installation
+## ▶️ Installation
 
 You can install the package using `pip`:
 
@@ -55,14 +55,14 @@ cd sen2venus
 pip install . 
 ```
 
-## Documentation (WIP)
+## 📖 Documentation (WIP)
 
 For more detailed information on the available parameters, methods, and best practices, please refer to the documentation.
 
-## Support and Issues (WIP)
+## 🆘 Support and Issues (WIP)
 
 If you encounter any issues, bugs, or have questions about the package, please feel free to open an issue on the GitHub repository. We appreciate your feedback!
 
-## License
+## 🖊️ License
 
 This package is released under the MIT License.
