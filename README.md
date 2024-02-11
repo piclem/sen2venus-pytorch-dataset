@@ -2,8 +2,10 @@
 Unofficial dataloader for the [Sen2Venµs dataset](https://zenodo.org/record/6514159), baked at [CESBIO](https://www.cesbio.cnrs.fr/) by [Julien Michel, Juan Vinasco-Salinas, Jordi Inglada and Olivier Hagolle](https://doi.org/10.3390/data7070096).
 
 ## Overview
+Install with: `pip install sen2venus-pytorch-dataset`
 
 This package provides a simple way to download and use the [Sen2Venµs dataset](https://zenodo.org/record/6514159) within the pytorch and Xarray ecosystems.
+
 
 ```python
 from sen2venus import Sen2VenusSite
@@ -41,13 +43,17 @@ plt.show()
 
 You can install the package using `pip`:
 
+```
+pip install sen2venus-pytorch-dataset
+```
+
+or if you want to clone it first (e.g. to try out the examples):
+
 ```bash
 git clone https://github.com/piclem/sen2venus-pytorch-dataset.git
 cd sen2venus
 pip install . 
 ```
-
-(pypi publication to come later)
 
 ## Documentation (WIP)
 
