@@ -1,0 +1,14 @@
+tqdm
+fire
+matplotlib
+kornia
+piq
+lightning
+torch-optimizer
+git+https://github.com/jonbarron/robust_loss_pytorch
+tensorboard
+mlflow
+pystac-client
+odc-stac
+rioxarray
+xarray
