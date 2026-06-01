@@ -33,6 +33,12 @@ setup(name='sen2venus-pytorch-dataset',
       zip_safe=False,
       include_package_data=True,
       install_requires=[
-        'torch', 'torchvision', 'rioxarray', 'py7zr', 'geopandas', 'fire', 'py7zr'
-      ]
+        'torch', 'torchvision', 'rioxarray', 'py7zr', 'geopandas', 'fire'
+      ],
+      extras_require={
+        # v2.0 dataset access via the tacofoundation mirror. The dataset uses the
+        # legacy "tortilla" format, readable only by tacoreader < 1.0; fsspec +
+        # requests + aiohttp are needed for the remote GDAL/vsi GeoTIFF reads.
+        'v2': ['tacoreader<1.0', 'fsspec', 'requests', 'aiohttp'],
+      }
       )
