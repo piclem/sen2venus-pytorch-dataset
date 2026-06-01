@@ -8,12 +8,12 @@ from lightning import Trainer
 import torch
 from torch.utils.data import DataLoader
 
-def train(device='cpu', datasets_root='.'):
+def train(device='cpu', datasets_root='.', batch_size=20, num_workers=0):
     dataset = Sen2Venus(datasets_root, Sen2VenusURLs().get_sites_list(), subset='all', load_geometry=False, return_type='dict', device=device, augment=True)
-    dataloader = DataLoader(dataset, batch_size=4, drop_last=True)
+    dataloader = DataLoader(dataset, batch_size=batch_size, drop_last=True, num_workers=num_workers)
     model = SRGAN(scale_factor=2, channels=8)
     model.automatic_optimization = False
-    trainer = Trainer(log_every_n_steps=10)
+    trainer = Trainer(log_every_n_steps=100)
     trainer.fit(model, train_dataloaders=dataloader)
 
 def test(checkpoint, device='cpu', datasets_root='.'):
