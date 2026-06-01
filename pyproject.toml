@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sen2venus-pytorch-dataset"
+description = "Unofficial pytorch dataloader for the Sen2Venµs Super-Resolution dataset."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+    { name = "Clément Peyrard", email = "clement.peyrard.phd@gmail.com" },
+]
+dynamic = ["version"]
+dependencies = [
+    "torch",
+    "torchvision",
+    "rioxarray",
+    "py7zr",
+    "geopandas",
+    "fire",
+]
+
+[project.optional-dependencies]
+# v2.0 dataset access via the tacofoundation mirror. The dataset uses the
+# legacy "tortilla" format, readable only by tacoreader < 1.0; fsspec +
+# requests + aiohttp are needed for the remote GDAL/vsi GeoTIFF reads.
+v2 = ["tacoreader<1.0", "fsspec", "requests", "aiohttp"]
+# offline test suite (no dataset download required).
+test = ["pytest"]
+
+[project.urls]
+Homepage = "https://github.com/piclem/sen2venus-pytorch-dataset"
+
+[tool.setuptools.dynamic]
+version = { attr = "sen2venus.__version__" }
+
+[tool.setuptools.packages.find]
+exclude = ["ez_setup", "examples", "tests"]
+
+[tool.pytest.ini_options]
+# Only collect the offline unit suite; the examples/test_*.py scripts download
+# real data and are run manually, not in CI.
+testpaths = ["tests"]
