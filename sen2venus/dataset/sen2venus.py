@@ -9,8 +9,7 @@ import rioxarray as rxr
 from pathlib import Path
 import json
 import shutil
-from tqdm import tqdm
-from tqdm.contrib.concurrent import thread_map, process_map
+from tqdm.contrib.concurrent import thread_map
 
 
 class Sen2VenusURLs:
@@ -20,7 +19,7 @@ class Sen2VenusURLs:
     def get_url(self, site):
         for url, md5 in self.urls:
             if site in url:
-                return url
+                return url, md5
         raise ValueError(f'Site {site} not found in urls')
     
     def get_sites_list(self):
@@ -149,7 +148,7 @@ class Sen2VenusSite(Dataset):
         Returns:
             int: number of batches or dimension 0 size
         """
-        tensor = torch.load(file_path)
+        tensor = torch.load(file_path, map_location='cpu', mmap=True, weights_only=True)
         return tensor.size(0)
     
     def is_already_downloaded(self):
@@ -170,24 +169,22 @@ class Sen2VenusSite(Dataset):
 
     def download(self, force_download=False):
         import py7zr
-        if not (self.is_already_extracted() or self.is_already_downloaded()) or force_download:
-            filename = None
+        # self.url may be a bare URL string or a (url, md5[, filename]) tuple.
+        # Resolve url/md5sum/filename unconditionally so the extract-only path
+        # (archive already downloaded but not yet extracted) has a valid filename.
+        if isinstance(self.url, str):
+            url = self.url
             md5sum = None
-            if isinstance(self.url, str):
-                url = self.url
-                if not filename:
-                    filename = os.path.basename(url)
-            else:
-                url = self.url[0]
-                if len(self.url) > 1:
-                    md5sum = self.url[1]
-                if len(self.url) > 2:
-                    filename = self.url[2]
-                else:
-                    filename = os.path.basename(url)[:-11]
-            download_url(self.url, self.root, filename=filename, md5=md5sum)
+            filename = os.path.basename(url)
+        else:
+            url = self.url[0]
+            md5sum = self.url[1] if len(self.url) > 1 else None
+            filename = self.url[2] if len(self.url) > 2 else os.path.basename(url)[:-11]
+
+        if not (self.is_already_extracted() or self.is_already_downloaded()) or force_download:
+            download_url(url, self.root, filename=filename, md5=md5sum)
         if (not self.is_already_extracted()) or force_download:
-            f = Path(self.root) / filename 
+            f = Path(self.root) / filename
             with py7zr.SevenZipFile(f, mode='r') as z:
                 target = (Path(self.root) / filename).with_suffix('')
                 if target.exists():
@@ -207,22 +204,22 @@ class Sen2VenusSite(Dataset):
     def __getitem__(self, idx):
         input_files, target_files, batch_pos = self.samples[idx]
         if self.subset == 'rgbnir':
-            input_tensor = torch.load(input_files[0], map_location=self.device)[batch_pos]/self.SCALE
-            target_tensor = torch.load(target_files[0], map_location=self.device)[batch_pos]/self.SCALE
+            input_tensor = torch.load(input_files[0], map_location=self.device, mmap=True, weights_only=True)[batch_pos]/self.SCALE
+            target_tensor = torch.load(target_files[0], map_location=self.device, mmap=True, weights_only=True)[batch_pos]/self.SCALE
         if self.subset == 'rededge':
-            input_tensor = torch.load(input_files[1], map_location=self.device)[batch_pos]/self.SCALE
-            target_tensor = torch.load(target_files[1], map_location=self.device)[batch_pos]/self.SCALE
+            input_tensor = torch.load(input_files[1], map_location=self.device, mmap=True, weights_only=True)[batch_pos]/self.SCALE
+            target_tensor = torch.load(target_files[1], map_location=self.device, mmap=True, weights_only=True)[batch_pos]/self.SCALE
         if self.subset == 'all':
             # load 20m sen rededge and upscale using bicubic interpolation
             input_tensor = torch.concat(
                 (
-                    torch.load(input_files[0], map_location=self.device)[batch_pos]/self.SCALE,
-                    torch.nn.functional.interpolate(torch.load(input_files[1], map_location=self.device)[batch_pos].unsqueeze(0)/self.SCALE, scale_factor=(2,2), mode=self.re_upsampling_mode).squeeze(0),
+                    torch.load(input_files[0], map_location=self.device, mmap=True, weights_only=True)[batch_pos]/self.SCALE,
+                    torch.nn.functional.interpolate(torch.load(input_files[1], map_location=self.device, mmap=True, weights_only=True)[batch_pos].unsqueeze(0)/self.SCALE, scale_factor=(2,2), mode=self.re_upsampling_mode).squeeze(0),
                 ), dim=0)
             target_tensor = torch.concat(
                 (
-                    torch.load(target_files[0], map_location=self.device)[batch_pos]/self.SCALE, 
-                    torch.load(target_files[1], map_location=self.device)[batch_pos]/self.SCALE
+                    torch.load(target_files[0], map_location=self.device, mmap=True, weights_only=True)[batch_pos]/self.SCALE, 
+                    torch.load(target_files[1], map_location=self.device, mmap=True, weights_only=True)[batch_pos]/self.SCALE
                 ), dim=0)
         # augmentations
         if self.augment:
