@@ -10,6 +10,7 @@ from pathlib import Path
 import json
 import shutil
 from tqdm import tqdm
+from tqdm.contrib.concurrent import thread_map, process_map
 
 
 class Sen2VenusURLs:
@@ -274,11 +275,11 @@ class Sen2Venus(ConcatDataset):
         # create Sen2VenusSite list
         self.subset = subset
         self.datasets = []
-        pbar = tqdm(site_names)
-    
-        for site_name in pbar:
-            pbar.set_description(f"Site = {site_name}")
-            self.datasets.append(Sen2VenusSite(root, site_name, subset=subset, **kwargs))
+        
+        def _get_sen2venus_site_instance(site_name):
+            return Sen2VenusSite(root, site_name, subset=subset, **kwargs)
+
+        self.datasets = thread_map(_get_sen2venus_site_instance, site_names)
         super().__init__(self.datasets)
 
 
