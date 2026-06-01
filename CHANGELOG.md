@@ -18,11 +18,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Sen2VenusV2.available_sites()` and per-site filtering via `site_names`.
 - Optional install extra `pip install sen2venus-pytorch-dataset[v2]` (pins
   `tacoreader<1.0`, the only line that can read the legacy tortilla format).
+- Offline `pytest` test suite under `tests/` (no dataset download required) plus a
+  GitHub Actions `Tests` workflow running it on Python 3.9–3.12. Installable via the
+  `[test]` extra.
 
 ### Changed
 
 - Refactored the Kornia augmentation pipeline into a shared `_build_augmentations()`
   helper reused by both v1 and v2.
+- Migrated packaging from `setup.py` to a PEP 621 `pyproject.toml` (setuptools
+  backend); the version is still sourced from `sen2venus.__version__`.
 
 ## [0.0.3] - 2024-02-10
 
